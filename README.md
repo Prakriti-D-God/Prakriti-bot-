@@ -1,7 +1,7 @@
 # MITSKI - WhatsApp Bot Framework
 
 <p align="center">
-  <img src="/api/placeholder/200/200" alt="Spectra Logo">
+  <img src="https://imgur.com/a/mfsbHoa" alt="Spectra Logo">
 </p>
 
 A robust, scalable WhatsApp bot framework built with Baileys, designed for performance and extensibility.
