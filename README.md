@@ -210,4 +210,4 @@ Created and maintained by Mr Perfect
 
 ---
 
-© 2024 Spectra Framework. All rights reserved.
+© 2024 Mitski Framework. All rights reserved.
