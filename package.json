@@ -1,6 +1,6 @@
 {
   "name": "Mitski",
-  "version": "1.0",
+  "version": "2.0",
   "description": "A simple Bot chat WhatsApp using pairing method. Made by Mr Perfect.",
   "main": "index.js",
   "dependencies": {
