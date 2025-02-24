@@ -1,4 +1,4 @@
-# AIROX - WhatsApp Bot Framework
+# MITSKI - WhatsApp Bot Framework
 
 <p align="center">
   <img src="/api/placeholder/200/200" alt="Spectra Logo">
@@ -8,7 +8,7 @@ A robust, scalable WhatsApp bot framework built with Baileys, designed for perfo
 
 ## Overview
 
-Spectra is a professional-grade WhatsApp bot framework that provides a solid foundation for building custom WhatsApp automation solutions. It features a modular architecture, robust message handling, and comprehensive security controls.
+Mitski is a professional-grade WhatsApp bot framework that provides a solid foundation for building custom WhatsApp automation solutions. It features a modular architecture, robust message handling, and comprehensive security controls.
 
 ## Key Features
 
@@ -31,7 +31,7 @@ Spectra is a professional-grade WhatsApp bot framework that provides a solid fou
 
 1. **Clone the Repository**
 ```bash
-git clone https://github.com/Mr-Perfect-Spector/Spectra.git
+git clone https://github.com/KaitoX-God/Mitski.git
 cd Spectra
 ```
 
@@ -63,7 +63,7 @@ npm start
     "multiDevice": true
   },
   "botSettings": {
-    "botName": "Spectra",
+    "botName": "Mitski",
     "prefix": "+",
     "ownerNumber": "your_number",
     "language": "en",
@@ -113,6 +113,7 @@ Spectra/
 ```javascript
 module.exports = {
     name: 'module_name',
+     author: 'Mr-Perfect'
     description: 'Module description',
     permission: 1,
     async run({ sock, m, args }) {
@@ -195,9 +196,9 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 
 ## Support
 
-- Documentation: [Project Wiki](https://github.com/Mr-Perfect-Spector/Spectra/wiki)
-- Issues: [GitHub Issues](https://github.com/Mr-Perfect-Spector/Spectra/issues)
-- Updates: [Release Notes](https://github.com/Mr-Perfect-Spector/Spectra/releases)
+- Documentation: [Project Wiki](https://github.com/KaitoX-God/Mitski/wiki)
+- Issues: [GitHub Issues](https://github.com/KaitoX-God/Mitski/issues)
+- Updates: [Release Notes](https://github.com/KaitoX-God/Mitski/releases)
 
 ## Disclaimer
 
