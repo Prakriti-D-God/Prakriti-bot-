@@ -1,79 +1,94 @@
+// utils/permission.js - Updated implementation
 const fs = require('fs');
 const path = require('path');
-const { proto, WA_GROUP_METADATA } = require('@whiskeysockets/baileys'); 
 const config = require('../config.json');
 
+// Get list of bot admins from config
 const botAdmins = config.adminOnly.adminNumbers || [];
 
 /**
  * Check if a user is a bot admin
- * @param {string} userNumber
- * @returns {boolean}
+ * @param {string} userNumber - User's phone number without special characters
+ * @returns {boolean} - True if user is a bot admin
  */
 const isBotAdmin = (userNumber) => {
     return botAdmins.includes(userNumber);
 };
 
 /**
- * Check if a user is a group admin
- * @param {string} userNumber
- * @param {object} groupMetadata
- * @returns {boolean}
+ * Check if user is a group admin
+ * @param {string} userNumber - User's phone number without special characters
+ * @param {object} groupMetadata - Group metadata containing participants info
+ * @returns {boolean} - True if user is a group admin
  */
 const isGroupAdmin = (userNumber, groupMetadata) => {
     if (!groupMetadata || !groupMetadata.participants) return false;
-    const adminList = groupMetadata.participants.filter(participant => participant.admin);
-    return adminList.some(admin => admin.id.replace(/[^0-9]/g, '') === userNumber);
+    
+    // Find admin participants in the group
+    const adminParticipants = groupMetadata.participants.filter(
+        participant => participant.admin === 'admin' || participant.admin === 'superadmin'
+    );
+    
+    // Check if user is in the admin list
+    return adminParticipants.some(admin => {
+        const adminNumber = admin.id.split('@')[0];
+        return adminNumber === userNumber;
+    });
 };
 
 /**
  * Get user permission level
- * @param {string} userNumber
- * @param {object} groupMetadata
- * @returns {number} Permission level (0: All, 1: Group Admins & Bot Admins, 2: Bot Admins Only)
+ * @param {string} userNumber - User's phone number without special characters
+ * @param {object} groupMetadata - Group metadata containing participants info
+ * @returns {number} - Permission level (0: all users, 1: group/bot admins, 2: bot admins only)
  */
 const getPermissionLevel = (userNumber, groupMetadata = null) => {
-
+    // Level 2: Bot Admin privileges - highest priority
     if (isBotAdmin(userNumber)) return 2;
+    
+    // Level 1: Group Admin privileges (in groups only)
     if (groupMetadata && isGroupAdmin(userNumber, groupMetadata)) return 1;
-
-
+    
+    // Level 0: Regular user - lowest privilege level
     return 0;
 };
 
 /**
- * Check if user can use the bot based on permission level
- * @param {string} userNumber
- * @param {object} groupMetadata
- * @param {string} chatType ('group' or 'personal')
- * @returns {boolean} true if the user can use the bot
+ * Check if user has required permission level to use a command
+ * @param {string} userNumber - User's phone number without special characters
+ * @param {object} groupMetadata - Group metadata for checking group admin status
+ * @param {number} requiredLevel - Required permission level for the command
+ * @returns {boolean} - True if user has required permission
  */
-const canUseBot = (userNumber, groupMetadata = null, chatType = 'group') => {
-    const permissionLevel = getPermissionLevel(userNumber, groupMetadata);
+const hasPermission = (userNumber, groupMetadata, requiredLevel) => {
+    const userLevel = getPermissionLevel(userNumber, groupMetadata);
+    return userLevel >= requiredLevel;
+};
 
-    if (permissionLevel === 2) {
-        return true;
+/**
+ * Check if user can use the bot based on global settings
+ * @param {string} userNumber - User's phone number without special characters
+ * @returns {boolean} - True if user can use the bot
+ */
+const canUseBot = (userNumber) => {
+    // If admin-only mode is enabled, only bot admins can use it
+    if (config.adminOnly.enable) {
+        return isBotAdmin(userNumber);
     }
-
-
-    if (permissionLevel === 1) {
-        if (chatType === 'group') {
-            return true; 
-        }
-        return permissionLevel === 2;
+    
+    // If whitelist mode is enabled, only whitelisted users can use it
+    if (config.whiteListMode.enable) {
+        return config.whiteListMode.allowedNumbers.includes(userNumber);
     }
-
-    if (permissionLevel === 0) {
-        return true; 
-
-    }
-
-    return false;
+    
+    // Otherwise anyone can use the bot
+    return true;
 };
 
 module.exports = {
     isBotAdmin,
     isGroupAdmin,
     getPermissionLevel,
+    hasPermission,
     canUseBot
 };

@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { getPermissionLevel } = require('./utils/permission');
+const { getPermissionLevel, hasPermission, canUseBot } = require('./utils/permission');
 const { logInfo, logSuccess, logError, logMessageDetails } = require('./utils/logger');
 const { initializeGlobals, config } = require('./config/globals');
 const CommandManager = require('./managers/CommandManager');
@@ -7,10 +7,8 @@ const EventManager = require('./managers/EventManager');
 const { extractMessageContent } = require('./utils/messageParser');
 const { smsg } = require('./utils/messageSerializer');
 
-
 const commandManager = new CommandManager();
 const eventManager = new EventManager();
-
 
 initializeGlobals();
 
@@ -19,7 +17,6 @@ eventManager.loadEvents();
 
 module.exports = async (sock, mek, store) => {
     try {
-        
         const m = smsg(sock, mek, store);
         if (!m) return;
 
@@ -38,7 +35,6 @@ module.exports = async (sock, mek, store) => {
         const command = isCmd ? body.slice(global.prefix.length).trim().split(' ').shift().toLowerCase() : '';
         const args = body.trim().split(/ +/).slice(1);
 
-    
         let groupMetadata = null;
         let groupName = '';
         if (isGroup) {
@@ -52,7 +48,6 @@ module.exports = async (sock, mek, store) => {
             }
         }
 
-        
         if (config.messageHandling.logMessages) {
             logMessageDetails({
                 ownerId: global.owner,
@@ -66,49 +61,74 @@ module.exports = async (sock, mek, store) => {
                 timezone: config.botSettings.timeZone
             });
         }
-      
+
+        // Handle commands
         if (isCmd && global.commands.has(command)) {
-            
-            if (!commandManager.canExecuteCommand(sender)) {
+            // Extract clean user number 
+            const userNumber = sender.replace(/[^0-9]/g, '');
+
+            // Check if user can use the bot at all based on global settings
+            if (!canUseBot(userNumber)) {
                 return await sock.sendMessage(
                     m.key.remoteJid,
-                    { text: `You don't have permission to use bot commands.` },
+                    { text: `⚠️ You don't have permission to use this bot.` },
                     { quoted: m }
                 );
             }
 
             const cmd = global.commands.get(command);
-            const permissionLevel = getPermissionLevel(sender.replace(/[^0-9]/g, ''), groupMetadata);
 
-            if (cmd.permission > permissionLevel) {
+            // Default permission level is 0 if not specified in command
+            const requiredPermission = cmd.permission || 0;
+
+            // Check if user has the required permission level
+            if (!hasPermission(userNumber, groupMetadata, requiredPermission)) {
+                const permissionMessages = [
+                    "This command is available to everyone.",
+                    "This command requires Group Admin or Bot Admin privileges.",
+                    "This command requires Bot Admin privileges."
+                ];
+
                 return await sock.sendMessage(
                     m.key.remoteJid,
-                    { text: `You don't have permission to use "${cmd.name}".` },
+                    { text: `⚠️ You don't have permission to use "${cmd.name}". ${permissionMessages[requiredPermission]}` },
                     { quoted: m }
                 );
             }
 
+            // Check for cooldown
             const cooldownTime = commandManager.checkCooldown(command, sender);
             if (cooldownTime) {
                 return await sock.sendMessage(
                     m.key.remoteJid,
-                    { text: `You're using "${command}" too fast. Wait ${cooldownTime}s.` },
+                    { text: `⏳ Please wait ${cooldownTime}s before using "${command}" again.` },
                     { quoted: m }
                 );
             }
 
+            // Log command execution
             if (config.logEvents.logCommands) {
                 logSuccess(`${sender} executed: ${command}`);
             }
 
-        
-            await cmd.run({ sock, m, args, sender, botNumber });
+            // Execute the command
+            try {
+                await cmd.run({ sock, m, args, sender, botNumber });
+            } catch (error) {
+                logError(`Error executing command ${command}: ${error.message}`);
+                await sock.sendMessage(
+                    m.key.remoteJid,
+                    { text: `❌ Error executing command: ${error.message}` },
+                    { quoted: m }
+                );
+            }
 
-      
+            // Delete command message if enabled
             if (config.messageHandling.deleteCommandMessages) {
                 await sock.sendMessage(m.key.remoteJid, { delete: m.key });
             }
         } else if (isCmd) {
+            // Command not found response
             await sock.sendMessage(
                 m.key.remoteJid,
                 { text: `Command "${command}" not found. Try ${global.prefix}help for a list of commands.` },
@@ -116,7 +136,6 @@ module.exports = async (sock, mek, store) => {
             );
         }
 
-        
         eventManager.handleEvents({ sock, m, sender });
 
     } catch (err) {
@@ -125,7 +144,6 @@ module.exports = async (sock, mek, store) => {
         }
     }
 };
-
 
 fs.watchFile(__filename, () => {
     fs.unwatchFile(__filename);

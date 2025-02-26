@@ -1,60 +1,62 @@
 {
- "whatsappAccount": {
-    "phoneNumber": "",
-    "sessionPath": "./auth/session",
-    "qrTimeout": 60,
-    "multiDevice": true
-  },
-  "botSettings": {
-    "botName": "Mitski",
-    "prefix": "+",
-    "ownerNumber": "",
-    "language": "en",
-    "timeZone": "Asia/nepal"
-  },
-  "database": {
-    "type": "sqlite",
-    "uriMongodb": "",
-    "autoSyncWhenStart": false
-  },
-  "adminOnly": {
-    "enable": false,
-    "adminNumbers": [
-"",
-""
-]
-  },
-  "whiteListMode": {
-    "enable": false,
-    "allowedNumbers": [""]
-  },
-  "messageHandling": {
-    "autoRead": true,
-    "deleteCommandMessages": false,
-    "logMessages": true
-  },
-  "antiSpam": {
-    "enable": true,
-    "cooldownTime": 5
-  },
-  "webhooks": {
-    "enable": false,
-    "url": ""
-  },
-  "serverUptime": {
-    "enable": true,
-    "port": 3001
-  },
-  "autoRestart": {
-    "enable": false,
-    "time": null
-  },
-  "notifications": {
-    "enable": false
-  },
-  "logEvents": {
-    "enable": true,
-    "logErrors": true,
-    "logCommands": true
-  }
+    "whatsappAccount": {
+        "phoneNumber": "9779863479066",
+        "sessionPath": "./auth/session",
+        "qrTimeout": 60,
+        "multiDevice": true
+    },
+    "botSettings": {
+        "botName": "Mitski",
+        "prefix": "+",
+        "ownerNumber": "",
+        "language": "en",
+        "timeZone": "Asia/nepal"
+    },
+    "database": {
+        "type": "sqlite",
+        "uriMongodb": "",
+        "autoSyncWhenStart": false
+    },
+    "adminOnly": {
+        "enable": false,
+        "adminNumbers": [
+            "9779863479066",
+            ""
+        ]
+    },
+    "whiteListMode": {
+        "enable": false,
+        "allowedNumbers": [
+            ""
+        ]
+    },
+    "messageHandling": {
+        "autoRead": true,
+        "deleteCommandMessages": false,
+        "logMessages": true
+    },
+    "antiSpam": {
+        "enable": true,
+        "cooldownTime": 5
+    },
+    "webhooks": {
+        "enable": false,
+        "url": ""
+    },
+    "serverUptime": {
+        "enable": true,
+        "port": 3001
+    },
+    "autoRestart": {
+        "enable": false,
+        "time": null
+    },
+    "notifications": {
+        "enable": false
+    },
+    "logEvents": {
+        "enable": true,
+        "logErrors": true,
+        "logCommands": true
+    }
 }
