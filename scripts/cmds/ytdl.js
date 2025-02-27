@@ -4,7 +4,7 @@ const fs = require('fs-extra');
 const path = require('path');
 
 module.exports = {
- name: 'ytdl',
+ name: 'ytb',
  alias: ['youtube', 'yt'],
  desc: 'Download YouTube videos or audio',
  usage: '+ytdl {video name} -{format}',
@@ -34,12 +34,12 @@ module.exports = {
  return await sock.sendMessage(m.key.remoteJid, { text: '⚠️ *No results found!* Try a different query.' }, { quoted: m });
  }
 
- // Pick the first search result
+
  const selectedVideo = searchResults.videos[0];
  const fileExtension = format === 'video' ? 'mp4' : 'mp3';
  const filePath = path.join(downloadDir, `${selectedVideo.videoId}.${fileExtension}`);
 
- // Download video/audio
+ 
  const streamOptions = format === 'video' ? {} : { filter: 'audioonly' };
  const stream = ytdl(selectedVideo.url, streamOptions).pipe(fs.createWriteStream(filePath));
 
@@ -79,7 +79,7 @@ module.exports = {
  }, { quoted: m });
  }
 
- // Clean up after sending
+ 
  fs.unlinkSync(filePath);
  });
 

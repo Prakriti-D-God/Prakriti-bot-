@@ -7,9 +7,10 @@ class CommandManager {
     constructor() {
         this.cooldowns = new Map();
         this.commandsFolder = path.resolve(__dirname, '../scripts/cmds');
-        this.cooldownTime = config.antiSpam.cooldownTime || 5;
+        this.cooldownTime = config.antiSpam.cooldownTime || 5; // Default cooldown time
     }
 
+    // Load all command files from the commands folder
     loadCommands() {
         const commandFiles = fs.readdirSync(this.commandsFolder).filter(file => file.endsWith('.js'));
         commandFiles.forEach(file => {
@@ -21,6 +22,7 @@ class CommandManager {
         });
     }
 
+    // Check if the command is on cooldown for the sender
     checkCooldown(command, sender) {
         if (!config.antiSpam.enable) return false;
 
@@ -28,28 +30,29 @@ class CommandManager {
         if (!this.cooldowns.has(command)) this.cooldowns.set(command, new Map());
         const timestamps = this.cooldowns.get(command);
         const cmd = global.commands.get(command);
-        const cooldownAmount = (cmd.cooldowns || this.cooldownTime) * 1000;
+        const cooldownAmount = (cmd.cooldown || this.cooldownTime) * 1000; // Use command-specific cooldown if available
 
         if (timestamps.has(sender)) {
             const expirationTime = timestamps.get(sender) + cooldownAmount;
             if (now < expirationTime) {
-                return ((expirationTime - now) / 1000).toFixed(1);
+                return ((expirationTime - now) / 1000).toFixed(1); // Return remaining cooldown time
             }
         }
 
         timestamps.set(sender, now);
         setTimeout(() => timestamps.delete(sender), cooldownAmount);
-        return false;
+        return false; // No cooldown
     }
 
+    
     canExecuteCommand(sender) {
         if (config.adminOnly.enable && !global.adminList.includes(sender.replace(/[^0-9]/g, ''))) {
-            return false;
+            return false; // Not an admin
         }
         if (config.whiteListMode.enable && !global.whiteList.includes(sender.replace(/[^0-9]/g, ''))) {
-            return false;
+            return false; // Not whitelisted
         }
-        return true;
+        return true; // Allowed to execute command
     }
 }
 
