@@ -200,6 +200,7 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 - Issues: [GitHub Issues](https://github.com/KaitoX-God/Mitski/issues)
 - Updates: [Release Notes](https://github.com/KaitoX-God/Mitski/releases)
 
+- Whatsaap group : [Click here to join ](https://chat.whatsapp.com/Dj7zQZJWIUGC2lFj2njRbA)
 ## Disclaimer
 
 This project is not affiliated with WhatsApp or Meta. Use responsibly and in accordance with WhatsApp's terms of service.
