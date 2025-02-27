@@ -32,7 +32,7 @@ Mitski is a professional-grade WhatsApp bot framework that provides a solid foun
 1. **Clone the Repository**
 ```bash
 git clone https://github.com/KaitoX-God/Mitski.git
-cd Spectra
+cd Mitski
 ```
 
 2. **Install Dependencies**
