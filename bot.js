@@ -1,6 +1,5 @@
 const {
-    default: makeWASocket,
-    makeInMemoryStore
+    default: makeWASocket
 } = require("@whiskeysockets/baileys");
 const pino = require('pino');
 const fs = require('fs');
@@ -12,17 +11,30 @@ const { handleConnection } = require('./core/connectionHandler');
 const { initializeMediaHandlers } = require('./utils/mediaHandler');
 const { startUptimeServer } = require('./services/uptimeServer');
 
-
-const store = makeInMemoryStore({ 
-    logger: pino().child({ level: 'silent', stream: 'store' }) 
-});
+// Define your custom in-memory store
+const store = (() => {
+    const messages = {};
+    return {
+        bind: (sock) => {
+            console.log('Store binding skipped - custom implementation');
+        },
+        loadMessage: async (jid, id) => {
+            if (messages[jid] && messages[jid][id]) return messages[jid][id];
+            return undefined;
+        },
+        writeToFile: (path) => {
+            console.log('Store write skipped - custom implementation');
+        },
+        readFromFile: (path) => {
+            console.log('Store read skipped - custom implementation');
+        }
+    };
+})();
 
 async function startBotz() {
     try {
-      
         const { state, saveCreds } = await getAuthState();
 
-        
         const ptz = makeWASocket({
             logger: pino({ level: "silent" }),
             printQRInTerminal: !config.whatsappAccount.phoneNumber,
@@ -38,28 +50,20 @@ async function startBotz() {
             markOnlineOnConnect: true,
         });
 
-        
         await authenticateSession(ptz);
 
-        
         store.bind(ptz.ev);
 
-        
         initializeMessageListener(ptz, store);
-
 
         handleConnection(ptz, startBotz);
 
-        
         initializeMediaHandlers(ptz);
 
-        
         ptz.ev.on('creds.update', saveCreds);
 
-        
         startUptimeServer();
 
-        
         if (config.autoRestart.enable && config.autoRestart.time) {
             setInterval(() => {
                 logInfo("Auto-restarting bot...");
@@ -73,10 +77,9 @@ async function startBotz() {
     }
 }
 
-
 startBotz();
 
-
+// Hot reload for development
 let file = require.resolve(__filename);
 fs.watchFile(file, () => {
     fs.unwatchFile(file);

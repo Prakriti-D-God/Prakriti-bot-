@@ -39,12 +39,23 @@ class CommandManager {
             }
         }
 
-        timestamps.set(sender, now);
-        setTimeout(() => timestamps.delete(sender), cooldownAmount);
         return false; // No cooldown
     }
 
-    
+    // Apply cooldown to a command for a specific sender
+    applyCooldown(command, sender) {
+        if (!config.antiSpam.enable) return;
+
+        const now = Date.now();
+        if (!this.cooldowns.has(command)) this.cooldowns.set(command, new Map());
+        const timestamps = this.cooldowns.get(command);
+        const cmd = global.commands.get(command);
+        const cooldownAmount = (cmd.cooldown || this.cooldownTime) * 1000;
+
+        timestamps.set(sender, now);
+        setTimeout(() => timestamps.delete(sender), cooldownAmount);
+    }
+
     canExecuteCommand(sender) {
         if (config.adminOnly.enable && !global.adminList.includes(sender.replace(/[^0-9]/g, ''))) {
             return false; // Not an admin

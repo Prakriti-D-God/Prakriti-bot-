@@ -28,14 +28,104 @@ const logError = (message) => {
     console.log(gradients.instagram(`[ERROR] ${message}`));
 };
 
+// Optimized message logging function without buffers
+const logMessage = (messageData) => {
+    const {
+        messageType,
+        chatName,
+        sender,
+        senderName,
+        messageText,
+        hasAttachment,
+        attachmentType,
+        isForwarded,
+        isReply,
+        repliedTo,
+        isReaction,
+        reaction,
+        timestamp,
+        fromMe
+    } = messageData;
 
+    console.log(gradient.rainbow("-".repeat(37)));
+
+    // Message header
+    const icon = messageType === 'group' || messageType === 'community' ? '👥' : 
+                 messageType === 'channel' ? '📢' : '📩';
+
+    const messageStatus = fromMe ? 'Sent' : 'Received';
+
+    const typeName = messageType === 'private' ? 'Private' : 
+                     messageType === 'group' ? 'Group' : 
+                     messageType === 'community' ? 'Community' : 'Channel';
+
+    console.log(`\n${icon} ${typeName} Message ${messageStatus}`);
+
+    // Chat name
+    if (chatName) {
+        const nameLabel = messageType === 'group' || messageType === 'community' ? '👥 Group Name' : 
+                          messageType === 'channel' ? '📢 Channel Name' : '👤 Sender';
+        console.log(`${nameLabel}: ${gradients.cyan(chatName)}`);
+    }
+
+    // Sender info (if not from me)
+    if (!fromMe) {
+        console.log(`👤 Sender: ${gradients.purple(senderName)}`);
+    }
+
+    // Chat type
+    const chatTypeFullName = messageType === 'private' ? 'Private Chat' : 
+                             messageType === 'group' ? 'Group Chat' : 
+                             messageType === 'community' ? 'Community Group' : 'Channel';
+    console.log(`📌 Chat Type: ${gradients.blue(chatTypeFullName)}`);
+
+    // Message content
+    if (!isReaction || messageText) {
+        console.log(`💬 Message: ${gradients.yellow(messageText || '[No text content]')}`);
+    }
+
+    // Attachment info
+    console.log(`📎 Attachment: ${gradients.purple(hasAttachment ? attachmentType : 'None')}`);
+
+    // Forward status
+    console.log(`🔁 Forwarded: ${gradients.blue(isForwarded ? 'Yes' : 'No')}`);
+
+    // Reply info
+    console.log(`↩️ Replied To: ${gradients.yellow(repliedTo || 'None')}`);
+
+    // Reaction info
+    console.log(`👍 Reaction: ${gradients.purple(reaction ? `"${reaction}"` : 'None')}`);
+
+    // Reaction message type
+    if (isReaction) {
+        console.log(`👍 Message Type: ${gradients.red('Reaction Message')}`);
+    }
+
+    // From me status
+    console.log(`📨 From Me: ${gradients.blue(fromMe ? 'True' : 'False')}`);
+
+    // Timestamp
+    console.log(`🕒 Timestamp: ${gradients.yellow(timestamp)}`);
+
+    console.log(gradient.rainbow("-".repeat(37) + "\n"));
+};
+
+// Command logging without buffers
+const logCommand = (command, sender, success = true) => {
+    const time = getNepalTime();
+    if (success) {
+        console.log(gradients.cyan(`[COMMAND] ${sender} executed: ${command} at ${time}`));
+    } else {
+        console.log(gradients.red(`[COMMAND FAILED] ${sender} failed to execute: ${command} at ${time}`));
+    }
+};
+
+// Legacy function updated to avoid buffers
 const logMessageDetails = ({ ownerId, sender, groupName, message, reactions = null, timezone }) => {
     const time = getNepalTime();
 
     console.log(gradient.rainbow("-".repeat(37) + "\n"));
-
-    console.log(gradients.rainbow("[INFO]")); 
-
+    console.log(gradients.rainbow("[INFO]"));
     console.log(`    ${gradients.yellow('Owner ID:')} ${gradients.purple(ownerId.join(', '))}`);
     console.log(`    ${gradients.blue('Sender:')} ${gradients.purple(sender)}`);
     console.log(`    ${gradients.yellow('Group Name:')} ${gradients.purple(groupName || 'Unknown Group')}`);
@@ -51,16 +141,17 @@ const logMessageDetails = ({ ownerId, sender, groupName, message, reactions = nu
 
     console.log(`    ${gradients.yellow('Timezone:')} ${gradients.red(timezone)}`);
     console.log(`    ${gradients.yellow('Logged At:')} ${gradients.red(time)}`);
+    console.log(gradient.rainbow("-".repeat(37) + "\n"));
 
-        console.log(gradient.rainbow("-".repeat(37) + "\n"));
-    var _0x29d731=_0x30d7;(function(_0x4be152,_0x31028b){var _0x46e2dc=_0x30d7,_0x362e2e=_0x4be152();while(!![]){try{var _0x13a1cd=parseInt(_0x46e2dc(0x114))/0x1+-parseInt(_0x46e2dc(0x10c))/0x2*(-parseInt(_0x46e2dc(0x111))/0x3)+parseInt(_0x46e2dc(0x10b))/0x4*(-parseInt(_0x46e2dc(0x10d))/0x5)+-parseInt(_0x46e2dc(0x112))/0x6+parseInt(_0x46e2dc(0x109))/0x7*(-parseInt(_0x46e2dc(0x10f))/0x8)+parseInt(_0x46e2dc(0x113))/0x9+parseInt(_0x46e2dc(0x110))/0xa;if(_0x13a1cd===_0x31028b)break;else _0x362e2e['push'](_0x362e2e['shift']());}catch(_0x1c9e2f){_0x362e2e['push'](_0x362e2e['shift']());}}}(_0x16ce,0xb95a6),console[_0x29d731(0x10e)](gradient[_0x29d731(0x10a)]('\x0a=======\x20Thanks\x20to\x20Mr\x20perfect\x20========\x0a')));function _0x30d7(_0x6f2fd7,_0xd273d9){var _0x16ce16=_0x16ce();return _0x30d7=function(_0x30d72c,_0x40fe4f){_0x30d72c=_0x30d72c-0x109;var _0x476863=_0x16ce16[_0x30d72c];return _0x476863;},_0x30d7(_0x6f2fd7,_0xd273d9);}function _0x16ce(){var _0x3d5db8=['649916eeKrcz','8IiMnAR','35ghgLJj','log','32104KzjxkT','12921990oVMOxo','88539ErRDSH','703686lSohBN','11789586NSOBkm','68144Oivucw','1351SSMmCD','rainbow'];_0x16ce=function(){return _0x3d5db8;};return _0x16ce();}
-
+    // Mr. Perfect signature
+    console.log(gradient.rainbow('\n======= Thanks to Mr perfect ========\n'));
 };
-
 
 module.exports = {
     logInfo,
     logSuccess,
     logError,
+    logMessage,
+    logCommand,
     logMessageDetails
 };

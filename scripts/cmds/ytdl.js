@@ -1,91 +1,61 @@
-const ytdl = require('@distube/ytdl-core');
-const ytSearch = require('yt-search');
-const fs = require('fs-extra');
-const path = require('path');
+const play = require("play-dl");
+const fs = require("fs");
+const path = require("path");
 
 module.exports = {
- name: 'ytb',
- alias: ['youtube', 'yt'],
- desc: 'Download YouTube videos or audio',
- usage: '+ytdl {video name} -{format}',
- category: 'media',
+  name: "ytb",
+  description: "Download YouTube videos or audio",
+  execute: async (client, message, args) => {
+    try {
+      if (args.length < 2) {
+        return client.sendMessage(message.chatId, "❌ Invalid format! Use: +ytb <URL> -a (audio) or -v (video)");
+      }
 
- async run({ sock, m, args }) {
- const downloadDir = path.join(__dirname, '../../downloads');
- if (!fs.existsSync(downloadDir)) {
- fs.mkdirSync(downloadDir, { recursive: true });
- }
+      let url = args[0];
+      let option = args[1];
 
- const input = args.join(' ');
- const formatMatch = input.match(/-(audio|video)$/i);
- if (!formatMatch) {
- return await sock.sendMessage(m.key.remoteJid, { text: '❌ *Error:* Please specify the format using -audio or -video.' }, { quoted: m });
- }
+      if (!play.yt_validate(url)) {
+        return client.sendMessage(message.chatId, "❌ Invalid YouTube URL!");
+      }
 
- const format = formatMatch[1].toLowerCase();
- const query = input.replace(/-(audio|video)$/i, '').trim();
+      let stream;
+      let filePath;
+      let fileName;
 
- if (!query) {
- return await sock.sendMessage(m.key.remoteJid, { text: '❌ *Error:* Please provide a video name or URL.' }, { quoted: m });
- }
+      if (option === "-a" || option === "-audio") {
+        let info = await play.video_info(url);
+        stream = await play.stream_from_info(info, { quality: 128 });
+        fileName = `audio_${Date.now()}.mp3`;
+        filePath = path.join(__dirname, "../../downloads/", fileName);
+      } else if (option === "-v" || option === "-video") {
+        let info = await play.video_info(url);
+        stream = await play.stream_from_info(info, { quality: 720 });
+        fileName = `video_${Date.now()}.mp4`;
+        filePath = path.join(__dirname, "../../downloads/", fileName);
+      } else {
+        return client.sendMessage(message.chatId, "❌ Invalid option! Use -a (audio) or -v (video)");
+      }
 
- const searchResults = await ytSearch(query);
- if (!searchResults.videos.length) {
- return await sock.sendMessage(m.key.remoteJid, { text: '⚠️ *No results found!* Try a different query.' }, { quoted: m });
- }
+      const writeStream = fs.createWriteStream(filePath);
+      stream.stream.pipe(writeStream);
 
+      writeStream.on("finish", async () => {
+        await client.sendMessage(message.chatId, {
+          document: fs.readFileSync(filePath),
+          mimetype: option.includes("a") ? "audio/mp3" : "video/mp4",
+          fileName: fileName,
+        });
 
- const selectedVideo = searchResults.videos[0];
- const fileExtension = format === 'video' ? 'mp4' : 'mp3';
- const filePath = path.join(downloadDir, `${selectedVideo.videoId}.${fileExtension}`);
+        fs.unlinkSync(filePath); // Delete file after sending
+      });
 
- 
- const streamOptions = format === 'video' ? {} : { filter: 'audioonly' };
- const stream = ytdl(selectedVideo.url, streamOptions).pipe(fs.createWriteStream(filePath));
+      writeStream.on("error", () => {
+        client.sendMessage(message.chatId, "❌ Error downloading media.");
+      });
 
- stream.on('finish', async () => {
- const thumbnailUrl = selectedVideo.thumbnail;
-
- if (format === 'audio') {
- await sock.sendMessage(m.key.remoteJid, {
- audio: { url: filePath },
- mimetype: 'audio/mpeg',
- ptt: false,
- contextInfo: {
- externalAdReply: {
- title: selectedVideo.title,
- body: `⏱️ Duration: ${selectedVideo.timestamp}`,
- thumbnailUrl: thumbnailUrl,
- mediaType: 2,
- mediaUrl: selectedVideo.url,
- sourceUrl: selectedVideo.url
- }
- }
- }, { quoted: m });
- } else {
- await sock.sendMessage(m.key.remoteJid, {
- video: { url: filePath },
- mimetype: 'video/mp4',
- contextInfo: {
- externalAdReply: {
- title: selectedVideo.title,
- body: `⏱️ Duration: ${selectedVideo.timestamp}`,
- thumbnailUrl: thumbnailUrl,
- mediaType: 2,
- mediaUrl: selectedVideo.url,
- sourceUrl: selectedVideo.url
- }
- }
- }, { quoted: m });
- }
-
- 
- fs.unlinkSync(filePath);
- });
-
- stream.on('error', async (error) => {
- console.error('Download error:', error);
- await sock.sendMessage(m.key.remoteJid, { text: '❌ *Download Failed!* Please try again later.' }, { quoted: m });
- });
- }
+    } catch (error) {
+      console.error(error);
+      client.sendMessage(message.chatId, "❌ Error downloading media.");
+    }
+  },
 };

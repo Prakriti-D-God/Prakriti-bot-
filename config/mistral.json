@@ -1,0 +1,7 @@
+{
+  "apiKey": "hpKGdsu0YbkHlWPAHPmY59RkPdT9UvfS",
+  "model": "mistral-large-latest",
+  "maxTokens": 1000,
+  "temperature": 0.7,
+  "enabled": true
+}

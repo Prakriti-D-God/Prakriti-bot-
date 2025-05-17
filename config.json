@@ -1,64 +1,65 @@
 {
-  "whatsappAccount": {
-    "phoneNumber": "",
-    "sessionPath": "./auth/session",
-    "qrTimeout": 60,
-    "multiDevice": true
-  },
-  "botSettings": {
-    "botName": "Mitski",
-    "prefix": "+",
-    "ownerNumber": "",
-    "language": "en",
-    "timeZone": "Asia/"
-  },
-  "database": {
-    "type": "",
-    "uriMongodb": "",
-    "autoSyncWhenStart": false
-  },
-  "adminOnly": {
-    "enable": false,
-    "adminNumbers": [
-      "",
-      ""
-    ]
-  },
-  "whiteListMode": {
-    "enable": true,
-    "allowedNumbers": [
-      "",
-      ""
-    ]
-  },
-  "messageHandling": {
-    "autoRead": true,
-    "deleteCommandMessages": false,
-    "logMessages": true,
-    "selflisten": true
-  },
-  "antiSpam": {
-    "enable": true,
-    "cooldownTime": 5
-  },
-  "webhooks": {
-    "enable": false,
-    "url": ""
-  },
-  "serverUptime": {
-    "enable": true,
-    "port": 3001
-  },
-  "autoRestart": {
-    "enable": false,
-    "time": null
-  },
-  "notifications": {
-    "enable": false
-  },
-  "logEvents": {
-    "enable": true,
-    "logErrors": true,
-    "logCommands": true
-  }
+    "whatsappAccount": {
+        "phoneNumber": "+9779769422868",
+        "sessionPath": "./auth/session",
+        "qrTimeout": 60,
+        "multiDevice": true
+    },
+    "botSettings": {
+        "botName": "Mitski",
+        "prefix": "+",
+        "ownerNumber": "",
+        "language": "en",
+        "timeZone": "Asia/"
+    },
+    "database": {
+        "type": "",
+        "uriMongodb": "",
+        "autoSyncWhenStart": false
+    },
+    "adminOnly": {
+        "enable": false,
+        "adminNumbers": [
+            "9779863479066",
+            "9779824175236",
+            "9779769422868"
+        ]
+    },
+    "whiteListMode": {
+        "enable": false,
+        "allowedNumbers": [
+            "",
+            ""
+        ]
+    },
+    "messageHandling": {
+        "autoRead": true,
+        "deleteCommandMessages": false,
+        "logMessages": true,
+        "selflisten": true
+    },
+    "antiSpam": {
+        "enable": true,
+        "cooldownTime": 5
+    },
+    "webhooks": {
+        "enable": false,
+        "url": ""
+    },
+    "serverUptime": {
+        "enable": true,
+        "port": 3001
+    },
+    "autoRestart": {
+        "enable": false,
+        "time": null
+    },
+    "notifications": {
+        "enable": true
+    },
+    "logEvents": {
+        "enable": true,
+        "logErrors": true,
+        "logCommands": true
+    }
 }

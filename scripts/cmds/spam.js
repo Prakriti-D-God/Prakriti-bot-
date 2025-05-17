@@ -1,61 +1,91 @@
-const { config } = require('../../config/globals');
-
-let activeSpams = new Map();
-let spamDelay = new Map();
+const fs = require('fs');
+const { logSuccess, logError, logInfo } = require('../../utils/logger');
 
 module.exports = {
-    name: 'spam',
-    alias: ['repeat'],
-    desc: 'Spam a message multiple times with optional delay',
-    usage: 'spam <text> <count>',
-    category: 'utility',
-    permission: 0,
+    name: "spam",
+    description: "Sends a message multiple times with no limits",
+    usage: "{prefix}spam <count> <message>",
+    aliases: ["repeat"],
+    cooldown: 0, // No cooldown
+    permission: 0, // Available to everyone
+    category: "fun",
+    async run({ sock, m, args, sender, botNumber }) {
+        try {
+            // Check if enough arguments are provided
+            if (args.length < 2) {
+                return await sock.sendMessage(
+                    m.key.remoteJid,
+                    { text: `❌ Usage: {prefix}spam <count> <message>` },
+                    { quoted: m }
+                );
+            }
 
-    async run({ sock, m, args, sender }) {
-        if (args.length < 2) {
-            return;
-        }
+            // Get count from first argument
+            const count = parseInt(args[0]);
 
-        const text = args.slice(0, -1).join(' ');
-        const count = parseInt(args[args.length - 1]);
+            // Validate count is a number
+            if (isNaN(count) || count <= 0) {
+                return await sock.sendMessage(
+                    m.key.remoteJid,
+                    { text: `❌ Count must be a positive number.` },
+                    { quoted: m }
+                );
+            }
 
-        if (isNaN(count) || count <= 0) {
-            return;
-        }
+            // Get the message to spam (everything after the count)
+            const message = args.slice(1).join(' ');
 
-        const chatId = m.key.remoteJid;
+            if (!message) {
+                return await sock.sendMessage(
+                    m.key.remoteJid,
+                    { text: `❌ Please provide a message to send.` },
+                    { quoted: m }
+                );
+            }
 
-        activeSpams.set(chatId, true);
-        const delay = spamDelay.get(chatId) || 0;
+            // Send initial confirmation
+            await sock.sendMessage(
+                m.key.remoteJid,
+                { text: `🔄 Sending "${message}" ${count} times...` },
+                { quoted: m }
+            );
 
-        for (let i = 0; i < count; i++) {
-            if (!activeSpams.get(chatId)) break;
-            await sock.sendMessage(chatId, { text });
-            if (delay > 0) await new Promise(resolve => setTimeout(resolve, delay));
+            // Spam the message with minimal delay
+            for (let i = 0; i < count; i++) {
+                try {
+                    await sock.sendMessage(
+                        m.key.remoteJid,
+                        { text: message }
+                    );
+
+                    // Add a very minimal delay to prevent connection issues
+                    // Just enough to maintain connection stability
+                    if (i < count - 1) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    }
+                } catch (sendErr) {
+                    logError(`Failed to send spam message #${i+1}: ${sendErr.message}`);
+                    // Continue sending even if a message fails
+                }
+            }
+
+            logSuccess(`Spam command executed by ${sender}: ${count} messages sent`);
+
+        } catch (error) {
+            logError(`Error in spam command: ${error.message}`);
+            await sock.sendMessage(
+                m.key.remoteJid,
+                { text: `❌ Error sending spam messages: ${error.message}` },
+                { quoted: m }
+            );
         }
     }
 };
 
-module.exports.adminControl = async ({ sock, m, args }) => {
-    const command = args[0]?.toLowerCase();
-    const chatId = m.key.remoteJid;
-
-    if (command === 'stop') {
-        activeSpams.set(chatId, false);
-        await sock.sendMessage(chatId, { text: 'Spam stopped by admin.' });
-    } else if (command === 'continue') {
-        activeSpams.set(chatId, true);
-        await sock.sendMessage(chatId, { text: 'Spam resumed by admin.' });
-    } else if (/^\d+(sec|min|hour)s?$/.test(command)) {
-        const value = parseInt(command.match(/\d+/)[0]);
-        const unit = command.match(/sec|min|hour/)[0];
-
-        let delay = 0;
-        if (unit === 'sec') delay = value * 1000;
-        else if (unit === 'min') delay = value * 60000;
-        else if (unit === 'hour') delay = value * 3600000;
-
-        spamDelay.set(chatId, delay);
-        await sock.sendMessage(chatId, { text: `Spam delay set to ${value} ${unit}(s).` });
-    }
-};
+// Add file watcher for hot reloading
+fs.watchFile(__filename, () => {
+    fs.unwatchFile(__filename);
+    logInfo(`Updated ${__filename}`);
+    delete require.cache[__filename];
+    require(__filename);
+});
