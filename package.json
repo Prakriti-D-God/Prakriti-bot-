@@ -40,8 +40,6 @@
     "dev": "set NODE_ENV=development&& node index.js",
     "prod": "set NODE_ENV=production&& node index.js"
   },
-  "author": "Mr-Perfect",
-  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/KaitoX-God/Mitski.git"
@@ -50,5 +48,10 @@
   "bugs": {
     "url": "https://github.com/KaitoX-God/Mitski/issues"
   },
-  "homepage": "https://github.com/KaitoX-God/Mitski#readme"
+  "homepage": "https://github.com/KaitoX-God/Mitski#readme",
+  "engines": {
+    "node": ">=20"
+  },
+  "author": "Mr-Perfect",
+  "license": "MIT"
 }
